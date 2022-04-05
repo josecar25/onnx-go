@@ -42,6 +42,19 @@ func (c *conv) apply(g *Graph, ns ...*Node) error {
 	if err != nil {
 		return err
 	}
+	        
+	if children[0].gorgoniaNode.Shape().Dims() == 3 {
+                children[0].gorgoniaNode, _ = gorgonia.Reshape(children[0].gorgoniaNode, tensor.Shape{children[0].gorgoniaNode.Shape()[0], children[0].gorgoniaNode.Shape()[1], 1, children[0].gorgoniaNode.Shape()[2]})
+                //return nil, fmt.Errorf("im should have 4 dims, got %v dims", im.Shape().Dims())
+        }
+
+        if children[1].gorgoniaNode.Shape().Dims() == 3 {
+                children[1].gorgoniaNode, _ = gorgonia.Reshape(children[1].gorgoniaNode, tensor.Shape{children[1].gorgoniaNode.Shape()[0], children[1].gorgoniaNode.Shape()[2], 1, children[1].gorgoniaNode.Shape()[1]})
+//              return nil, fmt.Errorf("filter should have 4 dims, got %v dims", filter.Shape().Dims())
+                c.kernelShape = tensor.Shape{1,c.kernelShape[0]}
+                c.dilation = []int{1, c.dilation[0]}
+                c.pad = []int{0, c.pad[0]}
+        }
 	convN, err := nnops.Conv2d(
 		children[0].gorgoniaNode,
 		children[1].gorgoniaNode,
